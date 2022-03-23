@@ -1,8 +1,8 @@
 ---
 output:
   word_document: default
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 ## Statistical report
 ```{r setup, include=FALSE} 
@@ -21,7 +21,7 @@ df <- data.frame(trainSet)
 Here is a histogram representing distribution of the grade. The distribution is
 little skewed to the right.
 ```{r, fig.align='center', fig.height=7, fig.width=7}
-hist(df$Rating,main = "Distributions of ratings", xlab = "Rating")
+hist(df$Rating,main = "Distribution of the grade", xlab = "Rating")
 ```
 Here is a histogram representing average joke rating distribution. Average joke 
 rating ranges from -3 to 4, the most  popular are within [1.5, 2]. The distribution 
@@ -35,13 +35,13 @@ the popularity of jokes is different. While some jokes have more than 25,000 rat
 others do not even reach 1000 ratings.
 ```{r, fig.align='center', fig.height=7, fig.width=7}
 ratings_numbers <- aggregate(df$Rating ~ df$joke_id, df, length)
-plot(ratings_numbers, type = "h", breals = 139, main = "Number of ratings distribution", xlab = "Joke id", ylab = "Number of ratings")
+plot(ratings_numbers, type = "h", breaks = 139, main = "Number of ratings distribution", xlab = "Joke id", ylab = "Number of ratings")
 ```
-Here is a histogram representing standart deviations of jokes ratings distribution.
+Here is a histogram representing standard deviations of jokes ratings distribution.
 As we can see, the standard deviations form a normal distribution. From this we can 
 conclude that the ratings of jokes are compatible.
 ```{r, fig.align='center', fig.height=7, fig.width=7}
-standart_deviations <- aggregate(df$Rating ~ df$joke_id, df, sd)
-hist(standart_deviations$`df$Rating`, xlim = c(4, 6.5),ylim=c(0,20), breaks = 20, main="Standart deviations distribution", xlab = "Standart deviation",
+standard_deviations <- aggregate(df$Rating ~ df$joke_id, df, sd)
+hist(standard_deviations$`df$Rating`, xlim = c(4, 6.5),ylim=c(0,20), breaks = 20, main="Standard deviations distribution", xlab = "Standard deviation",
      ylab = "Jokes number")
 ```
