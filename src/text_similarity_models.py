@@ -36,11 +36,10 @@ class CosineSimilarity(TextSimilarityModel):
         self.__embedding = embedding
 
     def get_similarity(self, a: str, b: str):
-        e_a = self.__embedding.to_vec(remove_punctuation(a))
-        e_b = self.__embedding.to_vec(remove_punctuation(b))
+        e = self.__embedding.to_vec([a, b])
 
-        np_e_a = np.array(e_a)
-        np_e_b = np.array(e_b)
+        np_e_a = np.array(e[0])
+        np_e_b = np.array(e[1])
 
         return np.dot(np_e_a, np_e_b) / (np.sqrt(np.sum(np.power(np_e_a, 2))) * np.sqrt(np.sum(np.power(np_e_b, 2))))
 
