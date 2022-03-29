@@ -12,7 +12,7 @@ def remove_punctuation(inp: str) -> str:
 class Embedding(ABC):
 
     @abstractmethod
-    def to_vec(self, inp: str):
+    def to_vec(self, inp: List[str]):
         pass
 
 
