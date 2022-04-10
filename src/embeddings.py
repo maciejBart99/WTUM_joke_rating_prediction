@@ -35,7 +35,7 @@ class BagOfWords(Embedding):
         return encoding
 
     def to_vec(self, inp: List[str]):
-        return [self.create_word_dict(x).values() for x in inp]
+        return [list(self.create_word_dict(x).values()) for x in inp]
 
 
 class TFIDF(Embedding):
@@ -68,7 +68,7 @@ class TFIDF(Embedding):
             for word, v in w_dict.items():
                 tfidf_dict[word] = v * self.__idf_dict[word]
 
-            result.append(tfidf_dict.values())
+            result.append(list(tfidf_dict.values()))
 
         return result
 
