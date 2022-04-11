@@ -9,36 +9,6 @@ DEFAULT_JOKES_FILENAME = path.join(DATA_PATH, 'jokes.csv')
 DEFAULT_RATING_FILENAME = path.join(DATA_PATH, 'rating.csv')
 
 
-class Model:
-    @abstractmethod
-    def fit(self, data_x, data_y):
-        pass
-
-    @abstractmethod
-    def predict(self, data_x):
-        pass
-
-
-class Environment:
-    def __init__(self, data_loader, model):
-        self.data_loader = data_loader
-        self.model = model
-
-    def run(self, model_trainable=True):
-        if model_trainable:
-            rating_train_df = self.data_loader.train_data
-            train_x, train_y = rating_train_df.get(["id", "user_id", "joke_id"]), rating_train_df.get("Rating")
-            self.model.fit(train_x, train_y)
-        rating_test_df = self.data_loader.test_data
-        test_x, test_y = rating_test_df.get(["id", "user_id", "joke_id"]), rating_test_df.get("Rating")
-        predicted_y = self.model.predict(test_x)
-        print("Explained variance score: " + str(sklmetrics.explained_variance_score(test_y, predicted_y)))
-        print("Mean absolute error: " + str(sklmetrics.mean_absolute_error(test_y, predicted_y)))
-        print("Mean squared error: " + str(sklmetrics.mean_squared_error(test_y, predicted_y)))
-        print("Median absolute error: " + str(sklmetrics.median_absolute_error(test_y, predicted_y)))
-        print("R2 coefficient: " + str(sklmetrics.r2_score(test_y, predicted_y)))
-
-
 class DataLoader:
     def __init__(self, jokes_filename=DEFAULT_JOKES_FILENAME, rating_filename=DEFAULT_RATING_FILENAME):
         self._jokes_df = pd.read_csv(jokes_filename)
@@ -88,3 +58,32 @@ class DataLoader:
 
     def joke_text(self, joke_id):
         return self.jokes.loc[self.jokes['joke_id'] == joke_id].iloc[0]['joke_text']
+
+
+class Model:
+    @abstractmethod
+    def fit(self, data, jokes):
+        pass
+
+    @abstractmethod
+    def predict(self, data_x, jokes):
+        pass
+
+
+class Environment:
+    def __init__(self, data_loader: DataLoader, model: Model):
+        self.data_loader = data_loader
+        self.model = model
+
+    def run(self, model_trainable=True):
+        if model_trainable:
+            rating_train_df = self.data_loader.train_data
+            self.model.fit(rating_train_df, self.data_loader.jokes['joke_text'].tolist())
+        rating_test_df = self.data_loader.test_data
+        test_x, test_y = rating_test_df.get(["id", "user_id", "joke_id"]), rating_test_df.get("Rating")
+        predicted_y = self.model.predict(test_x, self.data_loader.jokes['joke_text'].tolist())
+        print("Explained variance score: " + str(sklmetrics.explained_variance_score(test_y, predicted_y)))
+        print("Mean absolute error: " + str(sklmetrics.mean_absolute_error(test_y, predicted_y)))
+        print("Mean squared error: " + str(sklmetrics.mean_squared_error(test_y, predicted_y)))
+        print("Median absolute error: " + str(sklmetrics.median_absolute_error(test_y, predicted_y)))
+        print("R2 coefficient: " + str(sklmetrics.r2_score(test_y, predicted_y)))

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -38,10 +39,10 @@ class CosineSimilarity(TextSimilarityModel):
     def get_similarity(self, a: str, b: str):
         e = self.__embedding.to_vec([a, b])
 
-        np_e_a = np.array(e[0])
-        np_e_b = np.array(e[1])
+        np_e_a = np.array(list(e[0]))
+        np_e_b = np.array(list(e[1]))
 
-        return np.dot(np_e_a, np_e_b) / (np.sqrt(np.sum(np.power(np_e_a, 2))) * np.sqrt(np.sum(np.power(np_e_b, 2))))
+        return np.divide(np.dot(np_e_a, np_e_b), np.multiply(np.sqrt(np.sum(np.power(np_e_a, 2))), np.sqrt(np.sum(np.power(np_e_b, 2)))))
 
 
 class LatentSemanticIndexing(TextSimilarityModel):
@@ -54,3 +55,18 @@ class WordMoverDistance(TextSimilarityModel):
 
     def get_similarity(self, a: str, b: str):
         pass
+
+
+class CachedSimilarityModel(TextSimilarityModel):
+    cache: Dict[Tuple[str, str], float] = {}
+
+    def __init__(self, wrapped: TextSimilarityModel):
+        self.wrapped = wrapped
+
+    def get_similarity(self, a: str, b: str):
+        key = (a, b)
+
+        if key not in self.cache:
+            self.cache[key] = self.wrapped.get_similarity(a, b)
+
+        return self.cache[key]

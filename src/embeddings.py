@@ -1,6 +1,6 @@
 import re
 import math
-from typing import List
+from typing import List, Dict
 from sentence_transformers import SentenceTransformer
 from abc import ABC, abstractmethod
 
@@ -35,7 +35,7 @@ class BagOfWords(Embedding):
         return encoding
 
     def to_vec(self, inp: List[str]):
-        return [self.create_word_dict(x).values() for x in inp]
+        return [list(self.create_word_dict(x).values()) for x in inp]
 
 
 class TFIDF(Embedding):
@@ -68,7 +68,7 @@ class TFIDF(Embedding):
             for word, v in w_dict.items():
                 tfidf_dict[word] = v * self.__idf_dict[word]
 
-            result.append(tfidf_dict.values())
+            result.append(list(tfidf_dict.values()))
 
         return result
 
@@ -80,3 +80,19 @@ class SentenceBert(Embedding):
 
     def to_vec(self, inp: List[str]):
         return self.__model.encode(inp)
+
+
+class CachedEmbedding(Embedding):
+    cache: Dict[str, list] = {}
+
+    def __init__(self, wrapped: Embedding):
+        self.wrapped = wrapped
+
+    def to_vec(self, inp: List[str]):
+        missing = [x for x in inp if x not in self.cache]
+        missing_results = self.wrapped.to_vec(missing)
+
+        for key, val in zip(missing, missing_results):
+            self.cache[key] = val
+
+        return [self.cache[x] for x in self.cache.keys()]
