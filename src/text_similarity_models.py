@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -54,3 +55,18 @@ class WordMoverDistance(TextSimilarityModel):
 
     def get_similarity(self, a: str, b: str):
         pass
+
+
+class CachedSimilarityModel(TextSimilarityModel):
+    cache: Dict[Tuple[str, str], float] = {}
+
+    def __init__(self, wrapped: TextSimilarityModel):
+        self.wrapped = wrapped
+
+    def get_similarity(self, a: str, b: str):
+        key = (a, b)
+
+        if key not in self.cache:
+            self.cache[key] = self.wrapped.get_similarity(a, b)
+
+        return self.cache[key]

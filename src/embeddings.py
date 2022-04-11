@@ -1,6 +1,6 @@
 import re
 import math
-from typing import List
+from typing import List, Dict
 from sentence_transformers import SentenceTransformer
 from abc import ABC, abstractmethod
 
@@ -80,3 +80,19 @@ class SentenceBert(Embedding):
 
     def to_vec(self, inp: List[str]):
         return self.__model.encode(inp)
+
+
+class CachedEmbedding(Embedding):
+    cache: Dict[str, list] = {}
+
+    def __init__(self, wrapped: Embedding):
+        self.wrapped = wrapped
+
+    def to_vec(self, inp: List[str]):
+        missing = [x for x in inp if x not in self.cache]
+        missing_results = self.wrapped.to_vec(missing)
+
+        for key, val in zip(missing, missing_results):
+            self.cache[key] = val
+
+        return [self.cache[x] for x in self.cache.keys()]
