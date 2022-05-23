@@ -59,8 +59,3 @@ class PreprocessingPipeline(PreprocessingNode):
 
     def add(self, node):
         self.__nodes.append(node)
-
-
-
-
-
